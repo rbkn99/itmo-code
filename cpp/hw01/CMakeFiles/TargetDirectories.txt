@@ -1,0 +1,3 @@
+/home/matveich/projects/cpp/hw01/CMakeFiles/edit_cache.dir
+/home/matveich/projects/cpp/hw01/CMakeFiles/rebuild_cache.dir
+/home/matveich/projects/cpp/hw01/CMakeFiles/mul.dir
