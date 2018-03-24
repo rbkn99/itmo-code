@@ -15,11 +15,35 @@ public class ExpressionParser implements Parser {
     public CommonExpression parse(@NotNull String expression) {
         iterator = 0;
         restExpression = expression;
-        CommonExpression result = addSubOp();
+        CommonExpression result = orOp();
         if (iterator != restExpression.length()) {
             System.err.println("Error! Unreadable expression");
         }
         return result;
+    }
+
+    private CommonExpression orOp() {
+        CommonExpression expression = xorOp();
+        while (currentToken == TokenType.OR) {
+            expression = new Or(expression, xorOp());
+        }
+        return expression;
+    }
+
+    private CommonExpression xorOp() {
+        CommonExpression expression = andOp();
+        while (currentToken == TokenType.XOR) {
+            expression = new Xor(expression, andOp());
+        }
+        return expression;
+    }
+
+    private CommonExpression andOp() {
+        CommonExpression expression = addSubOp();
+        while (currentToken == TokenType.AND) {
+            expression = new And(expression, addSubOp());
+        }
+        return expression;
     }
 
     private CommonExpression addSubOp() {
@@ -67,8 +91,12 @@ public class ExpressionParser implements Parser {
                 return variable;
             case SUB:
                 return new UnaryMinus(baseOp());
+            case NOT:
+                return new Not(baseOp());
+            case COUNT:
+                return new Count(baseOp());
             case LP:
-                CommonExpression expression = addSubOp();
+                CommonExpression expression = orOp();
                 if (currentToken != TokenType.RP) {
                     System.err.println("Error! ')' expected");
                 }
@@ -96,6 +124,16 @@ public class ExpressionParser implements Parser {
                 return TokenType.LP;
             case ')':
                 return TokenType.RP;
+            case '&':
+                return TokenType.AND;
+            case '|':
+                return TokenType.OR;
+            case '^':
+                return TokenType.XOR;
+            case '~':
+                return TokenType.NOT;
+            case 'c':
+                return TokenType.COUNT;
             case 'x':
             case 'y':
             case 'z':
@@ -136,6 +174,9 @@ public class ExpressionParser implements Parser {
         TokenType type = getTokenType(c);
         if (type == TokenType.CONST) {
             numberValue = getConst(c);
+        }
+        if (type == TokenType.COUNT) {
+            iterator += 4;
         }
         currentToken = type;
     }
