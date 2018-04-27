@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/hw02.dir/main.cpp.o CMakeFiles/hw02.dir/big_integer.cpp.o CMakeFiles/hw02.dir/tests.cpp.o  -o hw02 

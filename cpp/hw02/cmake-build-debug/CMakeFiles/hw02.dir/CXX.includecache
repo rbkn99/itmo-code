@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/matveich/projects/ct/cpp/hw02/big_integer.cpp
+big_integer.h
+/home/matveich/projects/ct/cpp/hw02/big_integer.h
+
+/home/matveich/projects/ct/cpp/hw02/big_integer.h
+string
+-
+vector
+-
+
+/home/matveich/projects/ct/cpp/hw02/main.cpp
+iostream
+-
+big_integer.h
+/home/matveich/projects/ct/cpp/hw02/big_integer.h
+
