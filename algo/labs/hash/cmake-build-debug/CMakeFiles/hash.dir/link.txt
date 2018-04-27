@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/hash.dir/bunkers.cpp.o  -o hash 
