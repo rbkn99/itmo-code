@@ -84,10 +84,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/matveich/projects/ct/algo/labs/hash/lecture.cpp">
-			<Option target="hash"/>
-		</Unit>
-		<Unit filename="/home/matveich/projects/ct/algo/labs/hash/lecture.h">
+		<Unit filename="/home/matveich/projects/ct/algo/labs/hash/bunkers.cpp">
 			<Option target="hash"/>
 		</Unit>
 		<Unit filename="/home/matveich/projects/ct/algo/labs/hash/CMakeLists.txt">

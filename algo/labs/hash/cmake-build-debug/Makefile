@@ -123,32 +123,32 @@ hash/fast:
 	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/build
 .PHONY : hash/fast
 
-lecture.o: lecture.cpp.o
+bunkers.o: bunkers.cpp.o
 
-.PHONY : lecture.o
+.PHONY : bunkers.o
 
 # target to build an object file
-lecture.cpp.o:
-	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/lecture.cpp.o
-.PHONY : lecture.cpp.o
+bunkers.cpp.o:
+	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/bunkers.cpp.o
+.PHONY : bunkers.cpp.o
 
-lecture.i: lecture.cpp.i
+bunkers.i: bunkers.cpp.i
 
-.PHONY : lecture.i
+.PHONY : bunkers.i
 
 # target to preprocess a source file
-lecture.cpp.i:
-	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/lecture.cpp.i
-.PHONY : lecture.cpp.i
+bunkers.cpp.i:
+	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/bunkers.cpp.i
+.PHONY : bunkers.cpp.i
 
-lecture.s: lecture.cpp.s
+bunkers.s: bunkers.cpp.s
 
-.PHONY : lecture.s
+.PHONY : bunkers.s
 
 # target to generate assembly for a file
-lecture.cpp.s:
-	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/lecture.cpp.s
-.PHONY : lecture.cpp.s
+bunkers.cpp.s:
+	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/bunkers.cpp.s
+.PHONY : bunkers.cpp.s
 
 # Help Target
 help:
@@ -159,9 +159,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... hash"
-	@echo "... lecture.o"
-	@echo "... lecture.i"
-	@echo "... lecture.s"
+	@echo "... bunkers.o"
+	@echo "... bunkers.i"
+	@echo "... bunkers.s"
 .PHONY : help
 
 

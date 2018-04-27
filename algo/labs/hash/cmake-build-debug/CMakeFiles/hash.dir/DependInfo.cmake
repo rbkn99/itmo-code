@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/matveich/projects/ct/algo/labs/hash/lecture.cpp" "/home/matveich/projects/ct/algo/labs/hash/cmake-build-debug/CMakeFiles/hash.dir/lecture.cpp.o"
+  "/home/matveich/projects/ct/algo/labs/hash/bunkers.cpp" "/home/matveich/projects/ct/algo/labs/hash/cmake-build-debug/CMakeFiles/hash.dir/bunkers.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

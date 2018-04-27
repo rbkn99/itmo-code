@@ -57,38 +57,38 @@ include CMakeFiles/hash.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/hash.dir/flags.make
 
-CMakeFiles/hash.dir/lecture.cpp.o: CMakeFiles/hash.dir/flags.make
-CMakeFiles/hash.dir/lecture.cpp.o: ../lecture.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/matveich/projects/ct/algo/labs/hash/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/hash.dir/lecture.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hash.dir/lecture.cpp.o -c /home/matveich/projects/ct/algo/labs/hash/lecture.cpp
+CMakeFiles/hash.dir/bunkers.cpp.o: CMakeFiles/hash.dir/flags.make
+CMakeFiles/hash.dir/bunkers.cpp.o: ../bunkers.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/matveich/projects/ct/algo/labs/hash/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/hash.dir/bunkers.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hash.dir/bunkers.cpp.o -c /home/matveich/projects/ct/algo/labs/hash/bunkers.cpp
 
-CMakeFiles/hash.dir/lecture.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hash.dir/lecture.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/matveich/projects/ct/algo/labs/hash/lecture.cpp > CMakeFiles/hash.dir/lecture.cpp.i
+CMakeFiles/hash.dir/bunkers.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hash.dir/bunkers.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/matveich/projects/ct/algo/labs/hash/bunkers.cpp > CMakeFiles/hash.dir/bunkers.cpp.i
 
-CMakeFiles/hash.dir/lecture.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hash.dir/lecture.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/matveich/projects/ct/algo/labs/hash/lecture.cpp -o CMakeFiles/hash.dir/lecture.cpp.s
+CMakeFiles/hash.dir/bunkers.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hash.dir/bunkers.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/matveich/projects/ct/algo/labs/hash/bunkers.cpp -o CMakeFiles/hash.dir/bunkers.cpp.s
 
-CMakeFiles/hash.dir/lecture.cpp.o.requires:
+CMakeFiles/hash.dir/bunkers.cpp.o.requires:
 
-.PHONY : CMakeFiles/hash.dir/lecture.cpp.o.requires
+.PHONY : CMakeFiles/hash.dir/bunkers.cpp.o.requires
 
-CMakeFiles/hash.dir/lecture.cpp.o.provides: CMakeFiles/hash.dir/lecture.cpp.o.requires
-	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/lecture.cpp.o.provides.build
-.PHONY : CMakeFiles/hash.dir/lecture.cpp.o.provides
+CMakeFiles/hash.dir/bunkers.cpp.o.provides: CMakeFiles/hash.dir/bunkers.cpp.o.requires
+	$(MAKE) -f CMakeFiles/hash.dir/build.make CMakeFiles/hash.dir/bunkers.cpp.o.provides.build
+.PHONY : CMakeFiles/hash.dir/bunkers.cpp.o.provides
 
-CMakeFiles/hash.dir/lecture.cpp.o.provides.build: CMakeFiles/hash.dir/lecture.cpp.o
+CMakeFiles/hash.dir/bunkers.cpp.o.provides.build: CMakeFiles/hash.dir/bunkers.cpp.o
 
 
 # Object files for target hash
 hash_OBJECTS = \
-"CMakeFiles/hash.dir/lecture.cpp.o"
+"CMakeFiles/hash.dir/bunkers.cpp.o"
 
 # External object files for target hash
 hash_EXTERNAL_OBJECTS =
 
-hash: CMakeFiles/hash.dir/lecture.cpp.o
+hash: CMakeFiles/hash.dir/bunkers.cpp.o
 hash: CMakeFiles/hash.dir/build.make
 hash: CMakeFiles/hash.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/matveich/projects/ct/algo/labs/hash/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable hash"
@@ -99,7 +99,7 @@ CMakeFiles/hash.dir/build: hash
 
 .PHONY : CMakeFiles/hash.dir/build
 
-CMakeFiles/hash.dir/requires: CMakeFiles/hash.dir/lecture.cpp.o.requires
+CMakeFiles/hash.dir/requires: CMakeFiles/hash.dir/bunkers.cpp.o.requires
 
 .PHONY : CMakeFiles/hash.dir/requires
 

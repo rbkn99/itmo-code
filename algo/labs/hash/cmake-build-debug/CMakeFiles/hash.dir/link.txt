@@ -1,1 +1,1 @@
-/usr/bin/c++  -g   CMakeFiles/hash.dir/lecture.cpp.o  -o hash 
+/usr/bin/c++  -g   CMakeFiles/hash.dir/bunkers.cpp.o  -o hash 

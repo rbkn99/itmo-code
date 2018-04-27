@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/hash.dir/lecture.cpp.o"
+  "CMakeFiles/hash.dir/bunkers.cpp.o"
   "hash.pdb"
   "hash"
 )

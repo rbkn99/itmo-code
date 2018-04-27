@@ -6,9 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/matveich/projects/ct/algo/labs/hash/lecture.cpp
-string
--
+/home/matveich/projects/ct/algo/labs/hash/bunkers.cpp
 iostream
+-
+vector
+-
+algorithm
 -
 
