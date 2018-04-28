@@ -1,3 +1,0 @@
-/home/matveich/projects/ct/cpp/hw02/CMakeFiles/rebuild_cache.dir
-/home/matveich/projects/ct/cpp/hw02/CMakeFiles/edit_cache.dir
-/home/matveich/projects/ct/cpp/hw02/CMakeFiles/big_integer_testing.dir
