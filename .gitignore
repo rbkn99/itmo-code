@@ -2,3 +2,7 @@
 *CMake*
 *.idea*
 *gtest*
+*.iml*
+*.cbp*
+*out*
+*js-tests/
