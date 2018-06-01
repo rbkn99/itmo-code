@@ -10,20 +10,17 @@
 #include <vector>
 #include <climits>
 
-using namespace std;
+struct big_integer {
+    typedef unsigned int ui;
+    typedef unsigned long long ull;
 
-typedef unsigned int ui;
-typedef unsigned long long ull;
-
-class big_integer {
-public:
     big_integer();
 
     big_integer(big_integer const &);
 
     big_integer(int);
 
-    explicit big_integer(string);
+    explicit big_integer(std::string);
 
     ~big_integer();
 
@@ -45,11 +42,31 @@ public:
 
     big_integer operator~() const;
 
-    int operator[](size_t i) const;
+    big_integer &operator&=(big_integer const &rhs);
 
-    friend string to_string(big_integer const &);
+    big_integer &operator|=(big_integer const &rhs);
 
-    friend big_integer _abs(big_integer const &);
+    big_integer &operator^=(big_integer const &rhs);
+
+    big_integer &operator<<=(int rhs);
+
+    big_integer &operator>>=(int rhs);
+
+    ui operator[](size_t i) const;
+
+    big_integer abs() const;
+
+    friend big_integer operator+(big_integer a, big_integer const &b);
+
+    friend big_integer operator-(big_integer a, big_integer const &b);
+
+    friend big_integer operator*(big_integer a, big_integer const &b);
+
+    friend big_integer operator/(big_integer a, big_integer const &b);
+
+    friend big_integer operator%(big_integer a, big_integer const &b);
+
+    friend std::string to_string(big_integer const &);
 
     friend bool operator==(big_integer const &a, big_integer const &b);
 
@@ -63,43 +80,43 @@ public:
 
     friend bool operator>=(big_integer const &a, big_integer const &b);
 
-    size_t length() const {
-        return number.size();
-    };
+    friend big_integer operator&(big_integer a, big_integer const &b);
 
-    bool get_sign() const {
-        return sign;
-    };
+    friend big_integer operator|(big_integer a, big_integer const &b);
 
+    friend big_integer operator^(big_integer a, big_integer const &b);
+
+    friend big_integer operator<<(big_integer a, int b);
+
+    friend big_integer operator>>(big_integer a, int b);
+
+    size_t length() const;
 private:
-    template <typename T>
-    ui cast_to_ui(T);
 
     /*template <typename T>
     ui cast_to_ull(T);*/
 
-    const ui BASE = 32;
-    const ull SHIFT_BASE = ((ull)1 << BASE);
-    vector<ui> number;
+
+    std::vector <ui> number;
     bool sign;
-    pair<big_integer, big_integer> div_mod(big_integer const &a);
 
-    friend big_integer mul_long_short(big_integer const &a, ui x, size_t offset);
-    int comp(big_integer& x, big_integer& y, bool is_y_reversed=false);
+    std::pair <big_integer, big_integer> div_mod(big_integer const &a);
+
+    big_integer __mul_long_short(ui x, size_t offset) const;
+
+    big_integer __quotient(ui x) const ;
+
+    ui __remainder(ui x) const ;
+
+    template<class FunctorT>
+    big_integer& apply_bitwise_operation(big_integer const & rhs, FunctorT functor);
+
     void reverse_number();
+
     void shrink();
-    void twos_completment();
+
+    template<typename T>
+    ui cast_to_ui(T) const;
 };
-
-big_integer operator+(big_integer a, big_integer const &b);
-
-big_integer operator-(big_integer a, big_integer const &b);
-
-big_integer operator*(big_integer a, big_integer const &b);
-
-big_integer operator/(big_integer a, big_integer const &b);
-
-big_integer operator%(big_integer a, big_integer const &b);
-
 
 #endif //HW02_BIG_INTEGER_H

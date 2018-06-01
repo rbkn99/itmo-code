@@ -1,11 +1,11 @@
-#include "big_integer.h"
-#include "gtest/gtest.h"
-
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <vector>
 #include <utility>
+#include <gtest/gtest.h>
+
+#include "big_integer.h"
 
 TEST(correctness, two_plus_two)
 {
@@ -301,7 +301,6 @@ TEST(correctness, negation_int_min)
     EXPECT_EQ(std::numeric_limits<int>::max(), b - 1);
 }
 
-/*
 TEST(correctness, and_)
 {
     big_integer a = 0x55;
@@ -452,7 +451,7 @@ TEST(correctness, shr_return_value)
     (a >>= 2) >>= 1;
     EXPECT_EQ(a, 8);
 }
-*/
+
 TEST(correctness, add_long)
 {
     big_integer a("10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
@@ -574,6 +573,31 @@ TEST(correctness, negation_long)
     EXPECT_EQ(a, -c);
 }
 
+TEST(correctness, shl_long)
+{
+    EXPECT_EQ(big_integer("1091951238831590836520041079875950759639875963123939936"),
+              big_integer("34123476213487213641251283746123461238746123847623123") << 5);
+
+    EXPECT_EQ(big_integer("-104637598388784443044449444577438556334703518260785595038524928"),
+              big_integer("-817481237412378461284761285761238721364871236412387461238476") << 7);
+
+    EXPECT_EQ(big_integer("26502603392713913241969902328696116541550413468869982914247384891392"),
+              big_integer("12341236412857618761234871264871264128736412836643859238479") << 31);
+}
+
+TEST(correctness, shr_long)
+{
+    EXPECT_EQ(big_integer("4730073393008085198307104580698364137020387111323398632330851"),
+              big_integer("151362348576258726345827346582347652384652387562348756234587245") >> 5);
+
+    EXPECT_EQ(big_integer("1118311528397465815295799577134738919815767762822175104787"),
+              big_integer("143143875634875624357862345873246581736418273641238413412741") >> 7);
+
+    EXPECT_EQ(big_integer("-1591563309890326054125627839548891585559049824963"),
+              big_integer("-3417856182746231874623148723164812376512852437523846123876") >> 31);
+
+}
+
 TEST(correctness, string_conv)
 {
     EXPECT_EQ(to_string(big_integer("100")), "100");
@@ -667,7 +691,6 @@ namespace
     }
 }
 
-
 TEST(correctness, mul_merge_randomized)
 {
     for (unsigned itn = 0; itn != number_of_iterations; ++itn)
@@ -680,5 +703,35 @@ TEST(correctness, mul_merge_randomized)
         big_integer b = merge_all(x);
 
         EXPECT_TRUE(a == b);
+    }
+}
+
+namespace
+{
+    big_integer rand_big(size_t size)
+    {
+        big_integer result = rand();
+
+        for (size_t i = 0; i != size; ++i)
+        {
+            result *= RAND_MAX;
+            result += rand();
+        }
+
+        return result;
+    }
+}
+
+TEST(correctness, div_randomized)
+{
+    for (size_t itn = 0; itn != number_of_iterations * number_of_multipliers; ++itn)
+    {
+        big_integer divident = rand_big(10);
+        big_integer divisor = rand_big(6);
+        big_integer quotient = divident / divisor;
+        big_integer residue = divident % divisor;
+        ASSERT_EQ(divident - quotient * divisor, residue);
+        EXPECT_GE(residue, 0);
+        EXPECT_LT(residue, divisor);
     }
 }

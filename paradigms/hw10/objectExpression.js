@@ -59,6 +59,7 @@ Operation.prototype.diff = function (v) {
     return this._diff.apply(this, this.operands.concat(
         this.operands.map(function (x) {
             return x.diff(v);
+
     })));
 };
 
@@ -183,13 +184,14 @@ function Square() {
         return a * a;
     }, 'square', function (a, da) {
         return new Multiply(new Multiply(new Const(2), a), da);
-    }, function (a) {
+    }
+    /*, function (a) {
         if (isEqual(a, 0))
             return CONSTANTS[0];
         if (isEqual(a, 1))
             return CONSTANTS[1];
         return new Square(a);
-    }]);
+    }*/]);
 }
 
 function Sqrt() {

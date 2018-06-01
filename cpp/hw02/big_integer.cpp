@@ -4,40 +4,54 @@
 
 #include "big_integer.h"
 
-big_integer::big_integer() {
-    number.push_back(0);
-    sign = false;
+const big_integer::ui BASE = 32;
+const big_integer::ui MAX_INT = UINT32_MAX;
+const big_integer::ull SHIFT_BASE = ((big_integer::ull) 1 << BASE);
+const big_integer::ui BASE_10 = 1000000000;
+
+size_t big_integer::length() const {
+    return number.size();
 }
 
-big_integer::big_integer(int source) {
-    sign = source < 0;
-    number.push_back(cast_to_ui(source));
+template <typename T>
+big_integer::ui big_integer::cast_to_ui(T x) const {
+    return static_cast<ui>(x & MAX_INT);
 }
 
-big_integer::big_integer(big_integer const &source) {
-    number = source.number;
-    sign = source.sign;
+big_integer big_integer::abs() const {
+    return sign ? -(*this) : *this;
+}
+
+big_integer::big_integer() :
+        sign(false),
+        number({0})
+{}
+
+big_integer::big_integer(int source) :
+        sign(source < 0),
+        number({cast_to_ui(source)})
+{}
+
+big_integer::big_integer(big_integer const &source) :
+        sign(source.sign),
+        number(source.number)
+{
     shrink();
 }
 
-big_integer::big_integer(string source) {
-    if (source.empty())
-        *this = big_integer();
-    sign = (source[0] == '-');
-    size_t it = sign ? 1 : 0;
-    ui buffer = 0, pow_coef = 1;
-    char digit;
-    for (; it < source.size(); it++) {
-        digit = source[it] - '0';
-        if (UINT32_MAX - digit < buffer) {
-            number.push_back(buffer);
-            buffer = 0;
-            pow_coef = 1;
-        }
-        buffer += digit * pow_coef;
-        pow_coef *= 10;
-    }
-    reverse_number();
+big_integer::big_integer(std::string source):
+        sign(false),
+        number({0})
+{
+    bool _sign = (source[0] == '-');
+    size_t it = (_sign ? 1 : 0);
+    for (; it + 9 <= source.length(); it += 9)
+        *this = *this * BASE_10 + stoi(source.substr(it, 9));
+    if (it < source.length())
+        *this = *this * static_cast<ui>(pow(10, source.length() - it))
+                + stoi(source.substr(it));
+    if (_sign)
+        *this = -(*this);
     shrink();
 }
 
@@ -57,88 +71,50 @@ big_integer big_integer::operator+() const {
 }
 
 big_integer big_integer::operator-() const {
+    if (*this == 0)
+        return *this;
     big_integer res;
-    for (size_t it = 0; it < number.size(); it++)
-        res.number.push_back(~number[it]);
+    res.number.clear();
+    std::transform(number.begin(), number.end(),
+                   std::back_inserter(res.number),
+                   [](ui x) -> ui{ return ~x; });
+    res.shrink();
     res += 1;
     res.sign = !sign;
-    res.shrink();
     return res;
 }
 
 big_integer &big_integer::operator+=(big_integer const &rhs) {
-    if (!sign && rhs.sign)
-        return *this = *this - -rhs;
-    if (sign && !rhs.sign)
-        return *this = -(-*this - rhs);
-    if (sign && rhs.sign)
-        return *this = -(-*this + -rhs);
     ull cf = 0, sum = 0;
     big_integer result;
     result.number.clear();
-    auto n = max(length(), rhs.length()) + 2;
+    result.sign = sign;
+    auto n = std::max(length(), rhs.length()) + 2;
     for (size_t it = 0; it < n; it++) {
-        sum = (*this)[it] + rhs[it] + cf;
+        sum = static_cast<ull>((*this)[it]) + rhs[it] + cf;
         result.number.push_back(cast_to_ui(sum));
         cf = sum >> BASE;
+    }
+    if (sign != rhs.sign && abs() <= rhs.abs()) {
+        if (abs() == rhs.abs())
+            result.sign = false;
+        else
+            result.sign = !result.sign;
     }
     result.shrink();
     return *this = result;
 }
 
 big_integer &big_integer::operator-=(big_integer const &rhs) {
-    if (!sign && rhs.sign)
-        return *this = *this + -rhs;
-    if (sign && !rhs.sign)
-        return *this = -(-*this + rhs);
-    if (sign && rhs.sign)
-        return *this = -(-*this - -rhs);
-    ull cf = 0, tmp_number = 0;
-    auto min_size = min(length(), rhs.length());
-    auto max_size = max(length(), rhs.length());
-
-    for (size_t i = 0; i < min_size; i++) {
-        tmp_number = number[i] + rhs.number[i] + cf;
-        number[i] = cast_to_ui(tmp_number % SHIFT_BASE);
-        cf = cast_to_ui(tmp_number / SHIFT_BASE);
-    }
-    for (auto i = min_size; i < max_size; i++) {
-        if (rhs.length() == max_size) {
-            tmp_number = rhs.number[i] + cf;
-            number.push_back(cast_to_ui(tmp_number % SHIFT_BASE));
-        }
-        else {
-            tmp_number = number[i] + cf;
-            number[i] = cast_to_ui(tmp_number % SHIFT_BASE);
-        }
-        cf = cast_to_ui(tmp_number / SHIFT_BASE);
-    }
-    if (cf != 0)
-        number.push_back(cast_to_ui(cf));
-    shrink();
-    return *this;
+    return *this += -rhs;
 }
 
 big_integer operator+(big_integer a, big_integer const &b) {
     return a += b;
-    /*if (!a.get_sign() && ! b.get_sign())
-        return a += b;
-    if (!a.get_sign() && b.get_sign())
-        return a -= -b;
-    if (a.get_sign() & !b.get_sign())
-        return -(a -= b);
-    return -(a += b);*/
 }
 
 big_integer operator-(big_integer a, big_integer const &b) {
     return a -= b;
-    /*if (!a.get_sign() && ! b.get_sign())
-        return a -= b;
-    if (!a.get_sign() && b.get_sign())
-        return a += -b;
-    if (a.get_sign() & !b.get_sign())
-        return -(a += b);
-    return -(a -= b);*/
 }
 
 big_integer operator*(big_integer a, big_integer const &b) {
@@ -153,149 +129,128 @@ big_integer operator%(big_integer a, big_integer const &b) {
     return a %= b;
 }
 
-big_integer mul_long_short(big_integer const &a, ui x, size_t offset) {
+big_integer big_integer::__mul_long_short(big_integer::ui x, size_t offset) const {
     big_integer result;
-    result.sign = a.sign;
-    for (size_t i = 0; i < a.length() + offset - 1; i++)
-        result.number.push_back(0);
-    int tmp = 0, carry = 0;
-    for (size_t i = offset; i < a.length() + offset; i++) {
-        tmp = a.number[i - offset] * x + carry;
-        result.number[i] = tmp % 10;
-        carry = tmp / 10;
+    result.sign = sign;
+    size_t n = length() + offset + 2;
+    result.number.resize(n, sign ? UINT32_MAX : 0);
+    ull mul = 0, cf = 0;
+    for (size_t i = offset; i < n; i++) {
+        mul = static_cast<ull>((*this)[i - offset]) * x + cf;
+        result.number[i] = cast_to_ui(mul);
+        cf = mul >> BASE;
     }
-    if (carry > 0)
-        result.number.push_back(carry);
+    result.shrink();
     return result;
 }
 
-// optimization, using only in division function
-// x is represented in strict order, y - in reversed, if flag is true
-// important! comparison by absolute value
-// return value: 1 if x > y, 0 if x == y, -1 otherwise
-int big_integer::comp(big_integer &x, big_integer &y, bool is_y_reversed) {
-    if (x.length() < y.length())
-        return -1;
-    if (x.length() > y.length())
-        return 1;
-    for (int i = 0; i < static_cast<int>(x.length()); i++) {
-        if (is_y_reversed) {
-            if (x[i] < y[y.length() - i - 1])
-                return -1;
-            if (x[i] > y[y.length() - i - 1])
-                return 1;
-        }
-        else {
-            if (x[i] < y[i])
-                return -1;
-            if (x[i] > y[i])
-                return 1;
-        }
+big_integer big_integer::__quotient(big_integer::ui x) const {
+    big_integer result;
+    result.sign = sign;
+    size_t n = length();
+    result.number.resize(n, sign ? UINT32_MAX : 0);
+    ull div = 0, cf = 0;
+    for (int i = static_cast<int>(n - 1); i >= 0; i--) {
+        div = static_cast<ull>((*this)[i]) + (cf << BASE);
+        result.number[i] = cast_to_ui(div / x);
+        cf = div % x;
     }
-    return 0;
+    result.shrink();
+    return result;
 }
 
-pair<big_integer, big_integer> big_integer::div_mod(big_integer const &rhs) {
+big_integer::ui big_integer::__remainder(big_integer::ui x) const {
+    size_t n = length();
+    ull cf = 0;
+    for (int i = static_cast<int>(n - 1); i >= 0; i--)
+        cf = (cf << BASE + (*this)[i]) / x;
+    return cast_to_ui(cf);
+}
+
+
+
+std::pair<big_integer, big_integer> big_integer::div_mod(big_integer const &rhs) {
     if (rhs == 0)
         throw "division by zero";
+    if (rhs.length() > length())
+        return std::make_pair(0, *this);
 
-    // lets do some optimizations
-    big_integer a = _abs(rhs);
-    big_integer this_abs = _abs(*this);
-    big_integer chunk, result;
-
-    if (a > this_abs)
-        return make_pair(0, *this);
-    if (a == this_abs || a == 1) {
-        result = 1;
-        if (a == 1)
-            result = *this;
-        result.sign = sign ^ rhs.sign;
-        return make_pair(result, 0);
+    big_integer b = rhs;
+    // normalize b
+    ui half_shift_base = cast_to_ui(SHIFT_BASE >> 1);
+    ui k = 0;
+    while (b.number.back() < half_shift_base) {
+        k++;
+        b <<= 1;
+    }
+    (*this) <<= k;
+    size_t m = length() - b.length();
+    size_t n = b.length();
+    big_integer q;
+    q.number.resize(m + 1);
+    b <<= (BASE * m);
+    if (*this > b) {
+        q.number[m] = 1;
+        *this -= b;
     }
 
-    chunk.number.clear();
-    result.number.clear();
-    int it = static_cast<int>(length() - 1);
+    for (int j = static_cast<int>(m - 1); j >= 0; j--) {
+        q.number[j] = cast_to_ui(((ull((*this)[n + j]) << BASE) + (*this)[n + j - 1]) / b.number.back());
+        b >>= BASE;
+        *this -= b.__mul_long_short(q[j], 0);
 
-    while (it >= 0) {
-        while (it >= 0) {
-            chunk.number.push_back(number[it]);
-            it--;
-            if (chunk.length() >= a.length())
-                break;
-            result.number.push_back(0);
+        // execute twice in the worst case
+        while (sign) {
+            q.number[j]--;
+            *this += b;
         }
-        if (it >= 0 && comp(a, chunk) == 1) {
-            chunk.number.push_back(number[it]);
-            result.number.push_back(0);
-            it--;
-        }
-        //chunk.shrink();
-        reverse(chunk.number.begin(), chunk.number.end());
-        int c = 0;
-        big_integer tmp = 0;
-        while ((tmp += a) <= chunk)
-            c++;
-        if (c > 0) {
-            c--;
-            tmp -= a;
-        }
-        if (!tmp.sign)
-            chunk -= tmp;
-        else
-            chunk += tmp;
-        result.number.push_back(c);
-        reverse(chunk.number.begin(), chunk.number.end());
-        if (chunk == 0)
-            chunk.number.clear();
     }
-    reverse(result.number.begin(), result.number.end());
-    result.shrink();
-    result.sign = sign ^ rhs.sign;
-    chunk.sign = sign ^ rhs.sign;
-    if (chunk.number.size() == 0)
-        chunk = 0;
-    return make_pair(result, chunk);
+    q.shrink();
+    shrink();
+    return std::make_pair(q, *this >> k);
 }
 
 big_integer &big_integer::operator*=(big_integer const &rhs) {
-    big_integer storage = *this;
+    big_integer storage = *this, rhs_copy = rhs;
+    bool s1 = sign, s2 = rhs_copy.sign;
+    if (s1)
+        storage = -storage;
+    if (s2)
+        rhs_copy = -rhs_copy;
     *this = 0;
-
-    for (size_t i = 0; i < rhs.length(); i++) {
-        *this += mul_long_short(storage, rhs.number[i], i);
-    }
-    sign = (sign != rhs.sign);
+    for (size_t i = 0; i < rhs_copy.length(); i++)
+        *this += storage.__mul_long_short(rhs_copy[i], i);
     shrink();
+    if (s1 != s2)
+        *this = -(*this);
     return *this;
 }
 
 big_integer &big_integer::operator/=(big_integer const &rhs) {
-    bool s = sign;
-    *this = div_mod(rhs).first;
-    sign = s != rhs.sign;
-    shrink();
+    bool s1 = sign, s2 = rhs.sign;
+    if (s1)
+        *this = -(*this);
+    *this = !s2 ? div_mod(rhs).first : div_mod(-rhs).first;
+    if (s1 != s2)
+        *this = -(*this);
     return *this;
 }
 
 big_integer &big_integer::operator%=(big_integer const &rhs) {
-    *this = div_mod(rhs).second;
-    shrink();
+    bool s1 = sign, s2 = rhs.sign;
+    if (s1)
+        *this = -(*this);
+    *this = !s2 ? div_mod(rhs).second : div_mod(-rhs).second;
+    if (s1)
+        *this = -(*this);
     return *this;
 }
 
-big_integer _abs(big_integer const &a) {
-    big_integer res = a;
-    res.sign = false;
-    return res;
-}
-
 bool operator==(big_integer const &a, big_integer const &b) {
-    if ((a.sign != b.sign && (a.number.back() != 0 || b.number.back() != 0)) || a.number.size() != b.number.size())
+    if (a.sign != b.sign || a.length() != b.length())
         return false;
     for (int i = static_cast<int>(a.length()) - 1; i >= 0; i--) {
-        if (a.number[i] != b.number[i])
+        if (a[i] != b[i])
             return false;
     }
     return true;
@@ -306,20 +261,13 @@ bool operator!=(big_integer const &a, big_integer const &b) {
 }
 
 bool operator<(big_integer const &a, big_integer const &b) {
-    if (a.sign && !b.sign)
-        return true;
-    if (!a.sign && b.sign)
-        return false;
-    if (a.number.size() < b.number.size())
-        return !a.sign;
-    if (a.number.size() > b.number.size())
-        return a.sign;
+    if (a.sign != b.sign)
+        return a.sign > b.sign;
+    if (a.length() != b.length())
+        return a.sign ^ (a.length() < b.length());
     for (int i = static_cast<int>(a.length()) - 1; i >= 0; i--) {
-        if (a.number[i] < b.number[i]) {
-            return !a.sign;
-        }
-        if (a.number[i] > b.number[i])
-            return a.sign;
+        if (a[i] != b[i])
+            return a.sign ^ (a[i] < b[i]);
     }
     return false;
 }
@@ -336,16 +284,109 @@ bool operator>=(big_integer const &a, big_integer const &b) {
     return a > b || a == b;
 }
 
-int big_integer::operator[](size_t pos) const {
+big_integer big_integer::operator~() const {
+    return -(*this) - 1;
+}
+
+template<class FunctorT>
+big_integer& big_integer::apply_bitwise_operation(big_integer const & rhs, FunctorT functor) {
+    for (size_t i = 0; i < length(); i++)
+        number[i] = functor(number[i], rhs[i]);
+    sign = functor(sign, rhs.sign);
+    return *this;
+}
+
+big_integer& big_integer::operator&=(big_integer const &rhs) {
+    return apply_bitwise_operation(rhs, std::bit_and<ui>());
+}
+
+big_integer operator&(big_integer a, big_integer const &b) {
+    return a &= b;
+}
+
+
+big_integer& big_integer::operator|=(big_integer const &rhs) {
+    return apply_bitwise_operation(rhs, std::bit_or<ui>());
+}
+
+big_integer operator|(big_integer a, big_integer const &b) {
+    return a |= b;
+}
+
+big_integer& big_integer::operator^=(big_integer const &rhs) {
+    return apply_bitwise_operation(rhs, std::bit_xor<ui>());
+}
+
+big_integer operator^(big_integer a, big_integer const &b) {
+    return a ^= b;
+}
+
+big_integer& big_integer::operator<<=(int rhs) {
+    if (sign)
+        throw "error! left value is negative";
+    if (rhs < 0)
+        throw "error! right value is negative";
+    if (rhs % BASE == 0) {
+        std::vector<int> zeros(rhs / BASE);
+        number.insert(number.begin(), zeros.begin(), zeros.end());
+        return *this;
+    }
+    big_integer result;
+    result.number.clear();
+    result.number.resize(rhs / BASE);
+    rhs %= BASE;
+    ui cf = 0;
+    for (size_t i = 0; i < length(); i++) {
+        result.number.push_back(((*this)[i] << rhs) + cf);
+        cf = cast_to_ui((*this)[i] >> (BASE - rhs));
+    }
+    if (cf != 0)
+        result.number.push_back(cf);
+    return *this = result;
+}
+
+big_integer operator<<(big_integer a, int b) {
+    return a <<= b;
+}
+
+big_integer& big_integer::operator>>=(int rhs) {
+    if (rhs < 0)
+        throw "error! right value is negative";
+    if (rhs % BASE == 0) {
+        number.erase(number.begin(), number.begin() + (rhs / BASE));
+        return *this;
+    }
+    bool negative_flag = (*this < 0);
+    if (negative_flag)
+        *this = -(*this);
+    big_integer result;
+    result.number.clear();
+    int gap = rhs / BASE;
+    rhs %= BASE;
+    ui cf = 0;
+    for (size_t i = length() - 1; static_cast<int>(i) >= gap; i--) {
+        result.number.push_back(((*this)[i] >> rhs) + cf);
+        cf = cast_to_ui((*this)[i] << (BASE - rhs));
+    }
+    result.reverse_number();
+    result.sign = sign;
+    if (negative_flag)
+        result = -result - 1;
+    return *this = result;
+}
+
+big_integer operator>>(big_integer a, int b) {
+    return a >>= b;
+}
+
+big_integer::ui big_integer::operator[](size_t pos) const {
     if (pos < length())
         return number[pos];
-    if (sign)
-        return UINT32_MAX;
-    return 0;
+    return sign ? UINT32_MAX : 0;
 }
 
 void big_integer::shrink() {
-    while (length() > 1 && number.back() == 0)
+    while (length() > 1 && ((sign && number.back() == MAX_INT) || (!sign && number.back() == 0)))
         number.pop_back();
 }
 
@@ -353,26 +394,23 @@ void big_integer::reverse_number() {
     reverse(number.begin(), number.end());
 }
 
-void big_integer::twos_completment() {
-    for (size_t it = 0; it < number.size(); it++)
-        number[it] = ~number[it];
-}
-
-template <typename T>
-ui big_integer::cast_to_ui(T x) {
-    return static_cast<ui>(x & UINT32_MAX);
-}
-
-string to_string(big_integer const &source) {
-    string str_bi;
-    big_integer source_copy = source;
-    if (source.sign && source != 0) {
-        source_copy = -source;
-        str_bi.push_back('-');
+std::string to_string(big_integer const &source) {
+    if (source == 0)
+        return "0";
+    std::string result = "";
+    auto src_copy = (source.sign ? -source : source);
+    while (src_copy > 0) {
+        big_integer::ui slice = (src_copy % BASE_10)[0];
+        for (size_t i = 0; i < 9; i++) {
+            result.push_back('0' + char(slice % 10));
+            slice /= 10;
+        }
+        src_copy /= BASE_10;
     }
-    int i = static_cast<int>(source_copy.length()) - 1;
-    while (i > 0 && source_copy.number[i] == 0) i--;
-    for (; i >= 0; i--)
-        str_bi.push_back(static_cast<char>('0' + source_copy.number[i]));
-    return str_bi;
+    while (!result.empty() && result.back() == '0')
+        result.pop_back();
+    if (source.sign)
+        result.push_back('-');
+    std::reverse(result.begin(), result.end());
+    return result;
 }
