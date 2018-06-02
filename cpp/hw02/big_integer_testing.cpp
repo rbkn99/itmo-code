@@ -639,8 +639,9 @@ TEST(correctness, mul_div_randomized)
 
         std::random_shuffle(multipliers.begin(), multipliers.end());
 
-        for (size_t i = 1; i != number_of_multipliers; ++i)
+        for (size_t i = 1; i != number_of_multipliers; ++i) {
             accumulator /= multipliers[i];
+        }
 
         EXPECT_TRUE(accumulator == multipliers[0]);
     }

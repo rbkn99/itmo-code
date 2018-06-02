@@ -163,26 +163,22 @@ big_integer::ui big_integer::__remainder(big_integer::ui x) const {
     size_t n = length();
     ull cf = 0;
     for (int i = static_cast<int>(n - 1); i >= 0; i--)
-        cf = (cf << BASE + (*this)[i]) / x;
+        cf = ((cf << BASE) + (*this)[i]) % x;
     return cast_to_ui(cf);
 }
-
-
 
 std::pair<big_integer, big_integer> big_integer::div_mod(big_integer const &rhs) {
     if (rhs == 0)
         throw "division by zero";
     if (rhs.length() > length())
         return std::make_pair(0, *this);
-
+    if (rhs.length() == 1)
+        return std::make_pair(__quotient(rhs[0]), __remainder(rhs[0]));
     big_integer b = rhs;
+
     // normalize b
-    ui half_shift_base = cast_to_ui(SHIFT_BASE >> 1);
-    ui k = 0;
-    while (b.number.back() < half_shift_base) {
-        k++;
-        b <<= 1;
-    }
+    ui k = static_cast<ui>(ceil(log2((static_cast<double>(cast_to_ui(SHIFT_BASE >> 1)) / b.number.back()))));
+    b <<= k;
     (*this) <<= k;
     size_t m = length() - b.length();
     size_t n = b.length();
@@ -195,11 +191,11 @@ std::pair<big_integer, big_integer> big_integer::div_mod(big_integer const &rhs)
     }
 
     for (int j = static_cast<int>(m - 1); j >= 0; j--) {
-        q.number[j] = cast_to_ui(((ull((*this)[n + j]) << BASE) + (*this)[n + j - 1]) / b.number.back());
+        q.number[j] = cast_to_ui(((static_cast<ull>((*this)[n + j]) << BASE) + (*this)[n + j - 1]) / b.number.back());
         b >>= BASE;
         *this -= b.__mul_long_short(q[j], 0);
 
-        // execute twice in the worst case
+        // is executed twice in the worst case
         while (sign) {
             q.number[j]--;
             *this += b;
@@ -213,36 +209,29 @@ std::pair<big_integer, big_integer> big_integer::div_mod(big_integer const &rhs)
 big_integer &big_integer::operator*=(big_integer const &rhs) {
     big_integer storage = *this, rhs_copy = rhs;
     bool s1 = sign, s2 = rhs_copy.sign;
-    if (s1)
-        storage = -storage;
-    if (s2)
-        rhs_copy = -rhs_copy;
+    if (s1) storage = -storage;
+    if (s2) rhs_copy = -rhs_copy;
     *this = 0;
     for (size_t i = 0; i < rhs_copy.length(); i++)
         *this += storage.__mul_long_short(rhs_copy[i], i);
     shrink();
-    if (s1 != s2)
-        *this = -(*this);
+    if (s1 != s2) *this = -(*this);
     return *this;
 }
 
 big_integer &big_integer::operator/=(big_integer const &rhs) {
     bool s1 = sign, s2 = rhs.sign;
-    if (s1)
-        *this = -(*this);
+    if (s1) *this = -(*this);
     *this = !s2 ? div_mod(rhs).first : div_mod(-rhs).first;
-    if (s1 != s2)
-        *this = -(*this);
+    if (s1 != s2) *this = -(*this);
     return *this;
 }
 
 big_integer &big_integer::operator%=(big_integer const &rhs) {
     bool s1 = sign, s2 = rhs.sign;
-    if (s1)
-        *this = -(*this);
+    if (s1) *this = -(*this);
     *this = !s2 ? div_mod(rhs).second : div_mod(-rhs).second;
-    if (s1)
-        *this = -(*this);
+    if (s1) *this = -(*this);
     return *this;
 }
 
@@ -322,26 +311,29 @@ big_integer operator^(big_integer a, big_integer const &b) {
 }
 
 big_integer& big_integer::operator<<=(int rhs) {
-    if (sign)
-        throw "error! left value is negative";
     if (rhs < 0)
         throw "error! right value is negative";
+    bool negative_flag = sign;
     if (rhs % BASE == 0) {
-        std::vector<int> zeros(rhs / BASE);
+        std::vector<int> zeros(rhs / BASE, negative_flag ? MAX_INT : 0);
         number.insert(number.begin(), zeros.begin(), zeros.end());
         return *this;
     }
+    if (negative_flag)
+        *this = -(*this);
     big_integer result;
-    result.number.clear();
     result.number.resize(rhs / BASE);
     rhs %= BASE;
     ui cf = 0;
-    for (size_t i = 0; i < length(); i++) {
-        result.number.push_back(((*this)[i] << rhs) + cf);
-        cf = cast_to_ui((*this)[i] >> (BASE - rhs));
+    for (auto &x: number) {
+        result.number.push_back((x << rhs) + cf);
+        cf = cast_to_ui(x >> (BASE - rhs));
     }
     if (cf != 0)
         result.number.push_back(cf);
+    if (negative_flag)
+        result = -result;
+    result.shrink();
     return *this = result;
 }
 
@@ -356,7 +348,7 @@ big_integer& big_integer::operator>>=(int rhs) {
         number.erase(number.begin(), number.begin() + (rhs / BASE));
         return *this;
     }
-    bool negative_flag = (*this < 0);
+    bool negative_flag = sign;
     if (negative_flag)
         *this = -(*this);
     big_integer result;
@@ -368,7 +360,7 @@ big_integer& big_integer::operator>>=(int rhs) {
         result.number.push_back(((*this)[i] >> rhs) + cf);
         cf = cast_to_ui((*this)[i] << (BASE - rhs));
     }
-    result.reverse_number();
+    std::reverse(result.number.begin(), result.number.end());
     result.sign = sign;
     if (negative_flag)
         result = -result - 1;
@@ -382,16 +374,12 @@ big_integer operator>>(big_integer a, int b) {
 big_integer::ui big_integer::operator[](size_t pos) const {
     if (pos < length())
         return number[pos];
-    return sign ? UINT32_MAX : 0;
+    return sign ? MAX_INT : 0;
 }
 
 void big_integer::shrink() {
     while (length() > 1 && ((sign && number.back() == MAX_INT) || (!sign && number.back() == 0)))
         number.pop_back();
-}
-
-void big_integer::reverse_number() {
-    reverse(number.begin(), number.end());
 }
 
 std::string to_string(big_integer const &source) {
@@ -400,7 +388,7 @@ std::string to_string(big_integer const &source) {
     std::string result = "";
     auto src_copy = (source.sign ? -source : source);
     while (src_copy > 0) {
-        big_integer::ui slice = (src_copy % BASE_10)[0];
+        auto slice = (src_copy % BASE_10)[0];
         for (size_t i = 0; i < 9; i++) {
             result.push_back('0' + char(slice % 10));
             slice /= 10;

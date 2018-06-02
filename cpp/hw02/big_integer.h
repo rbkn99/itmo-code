@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <deque>
 #include <climits>
 
 struct big_integer {
@@ -93,10 +94,6 @@ struct big_integer {
     size_t length() const;
 private:
 
-    /*template <typename T>
-    ui cast_to_ull(T);*/
-
-
     std::vector <ui> number;
     bool sign;
 
@@ -110,8 +107,6 @@ private:
 
     template<class FunctorT>
     big_integer& apply_bitwise_operation(big_integer const & rhs, FunctorT functor);
-
-    void reverse_number();
 
     void shrink();
 
