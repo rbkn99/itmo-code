@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <climits>
+#include <cmath>
 
 struct big_integer {
     typedef unsigned int ui;
