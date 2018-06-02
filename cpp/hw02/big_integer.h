@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <deque>
 #include <climits>
 
 struct big_integer {
@@ -92,21 +91,22 @@ struct big_integer {
     friend big_integer operator>>(big_integer a, int b);
 
     size_t length() const;
+
 private:
 
-    std::vector <ui> number;
     bool sign;
+    std::vector<ui> number;
 
-    std::pair <big_integer, big_integer> div_mod(big_integer const &a);
+    std::pair<big_integer, big_integer> div_mod(big_integer const &a);
 
     big_integer __mul_long_short(ui x, size_t offset) const;
 
-    big_integer __quotient(ui x) const ;
+    big_integer __quotient(ui x) const;
 
-    ui __remainder(ui x) const ;
+    ui __remainder(ui x) const;
 
     template<class FunctorT>
-    big_integer& apply_bitwise_operation(big_integer const & rhs, FunctorT functor);
+    big_integer &apply_bitwise_operation(big_integer const &rhs, FunctorT functor);
 
     void shrink();
 

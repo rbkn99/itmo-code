@@ -13,7 +13,7 @@ size_t big_integer::length() const {
     return number.size();
 }
 
-template <typename T>
+template<typename T>
 big_integer::ui big_integer::cast_to_ui(T x) const {
     return static_cast<ui>(x & MAX_INT);
 }
@@ -24,25 +24,21 @@ big_integer big_integer::abs() const {
 
 big_integer::big_integer() :
         sign(false),
-        number({0})
-{}
+        number({0}) {}
 
 big_integer::big_integer(int source) :
         sign(source < 0),
-        number({cast_to_ui(source)})
-{}
+        number({cast_to_ui(source)}) {}
 
 big_integer::big_integer(big_integer const &source) :
         sign(source.sign),
-        number(source.number)
-{
+        number(source.number) {
     shrink();
 }
 
-big_integer::big_integer(std::string source):
+big_integer::big_integer(std::string source) :
         sign(false),
-        number({0})
-{
+        number({0}) {
     bool _sign = (source[0] == '-');
     size_t it = (_sign ? 1 : 0);
     for (; it + 9 <= source.length(); it += 9)
@@ -56,13 +52,13 @@ big_integer::big_integer(std::string source):
 }
 
 big_integer::~big_integer() {
-    number.clear();
     sign = false;
+    number.clear();
 }
 
 big_integer &big_integer::operator=(big_integer const &other) {
-    number = other.number;
     sign = other.sign;
+    number = other.number;
     return *this;
 }
 
@@ -77,7 +73,7 @@ big_integer big_integer::operator-() const {
     res.number.clear();
     std::transform(number.begin(), number.end(),
                    std::back_inserter(res.number),
-                   [](ui x) -> ui{ return ~x; });
+                   [](ui x) -> ui { return ~x; });
     res.shrink();
     res += 1;
     res.sign = !sign;
@@ -174,7 +170,7 @@ std::pair<big_integer, big_integer> big_integer::div_mod(big_integer const &rhs)
         return std::make_pair(0, *this);
     if (rhs.length() == 1)
         return std::make_pair(__quotient(rhs[0]), __remainder(rhs[0]));
-    big_integer b = rhs;
+    big_integer b(rhs);
 
     // normalize b
     ui k = static_cast<ui>(ceil(log2((static_cast<double>(cast_to_ui(SHIFT_BASE >> 1)) / b.number.back()))));
@@ -278,14 +274,14 @@ big_integer big_integer::operator~() const {
 }
 
 template<class FunctorT>
-big_integer& big_integer::apply_bitwise_operation(big_integer const & rhs, FunctorT functor) {
+big_integer &big_integer::apply_bitwise_operation(big_integer const &rhs, FunctorT functor) {
     for (size_t i = 0; i < length(); i++)
         number[i] = functor(number[i], rhs[i]);
     sign = functor(sign, rhs.sign);
     return *this;
 }
 
-big_integer& big_integer::operator&=(big_integer const &rhs) {
+big_integer &big_integer::operator&=(big_integer const &rhs) {
     return apply_bitwise_operation(rhs, std::bit_and<ui>());
 }
 
@@ -294,7 +290,7 @@ big_integer operator&(big_integer a, big_integer const &b) {
 }
 
 
-big_integer& big_integer::operator|=(big_integer const &rhs) {
+big_integer &big_integer::operator|=(big_integer const &rhs) {
     return apply_bitwise_operation(rhs, std::bit_or<ui>());
 }
 
@@ -302,7 +298,7 @@ big_integer operator|(big_integer a, big_integer const &b) {
     return a |= b;
 }
 
-big_integer& big_integer::operator^=(big_integer const &rhs) {
+big_integer &big_integer::operator^=(big_integer const &rhs) {
     return apply_bitwise_operation(rhs, std::bit_xor<ui>());
 }
 
@@ -310,7 +306,7 @@ big_integer operator^(big_integer a, big_integer const &b) {
     return a ^= b;
 }
 
-big_integer& big_integer::operator<<=(int rhs) {
+big_integer &big_integer::operator<<=(int rhs) {
     if (rhs < 0)
         throw "error! right value is negative";
     bool negative_flag = sign;
@@ -341,7 +337,7 @@ big_integer operator<<(big_integer a, int b) {
     return a <<= b;
 }
 
-big_integer& big_integer::operator>>=(int rhs) {
+big_integer &big_integer::operator>>=(int rhs) {
     if (rhs < 0)
         throw "error! right value is negative";
     if (rhs % BASE == 0) {

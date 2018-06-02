@@ -6,68 +6,50 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <unordered_map>
 
 using namespace std;
 
 typedef unsigned int ui;
 
-set<int> accepting_states;
-vector<map<char, set<int> > > edges;
-map<string, int> encoded;
-int start;
+unordered_map<char, std::vector<std::string>> cfg;
 
-bool accepts(string &word) {
-    set<int> curr, prev;
-    prev.insert(start);
-    for (char c: word) {
-        for (auto x: prev) {
-            for (auto to: edges[x][c]) {
-                curr.insert(to);
-            }
+bool accepts(char c, std::string &word, int j) {
+    if (j == word.size())
+        return false;
+    bool result = false;
+    for (auto &it: cfg[c]) {
+        if (it.size() == 1)
+            result |= (it[0] == word.back() && j == word.size() - 1);
+        else {
+            if (it[0] == word[j])
+                result |= accepts(it[1], word, j + 1);
         }
-        prev = curr;
-        curr.clear();
     }
-    for (auto x: prev) {
-        if (accepting_states.find(x) != accepting_states.end())
-            return true;
-    }
-    return false;
+    return result;
 }
 
-ui n;
 
 int main() {
     freopen("automaton.in", "r", stdin);
     freopen("automaton.out", "w", stdout);
     ios::sync_with_stdio(false);
-    string str_start;
-    cin >> n >> str_start;
-    edges.resize(27);
-    accepting_states.insert(26);
-    string tmp, tmp1;
-    int c = 0;
+    char start = ' ';
+    ui n;
+    cin >> n >> start;
+    char s1;
+    string s2, s3;
 
     for (int i = 0; i < n; i++) {
-        cin >> tmp >> tmp1 >> tmp1;
-        if (encoded.count(tmp) == 0)
-            encoded[tmp] = c++;
-        if (tmp1.size() == 1) {
-            edges[encoded[tmp]][tmp1[0]].insert(26);
-        }
-        else {
-            auto s = string(1, tmp1[1]);
-            if (encoded.count(s) == 0)
-                encoded[s] = c++;
-            edges[encoded[tmp]][tmp1[0]].insert(encoded[s]);
-        }
+        cin >> s1 >> s2 >> s3;
+        cfg[s1].push_back(s3);
     }
-    start = encoded[str_start];
+
     int m;
     cin >> m;
     for (int i = 0; i < m; i++) {
-        cin >> tmp;
-        cout << (accepts(tmp) ? "yes\n": "no\n");
+        cin >> s2;
+        cout << (accepts(start, s2, 0) ? "yes\n": "no\n");
     }
     return 0;
 }
