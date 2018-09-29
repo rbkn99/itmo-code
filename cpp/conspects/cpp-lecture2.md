@@ -1,9 +1,15 @@
----
+<!DOCTYPE html>
+<html>
 
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cpp-lecture2</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
 
----
-
-<h2 id="rvalue-ссылки">rvalue-ссылки</h2>
+<body class="stackedit">
+  <div class="stackedit__html"><h2 id="rvalue-ссылки">rvalue-ссылки</h2>
 <pre class=" language-c"><code class="prism ++ language-c"><span class="token keyword">struct</span> big_struct <span class="token punctuation">{</span>
 	std<span class="token punctuation">:</span><span class="token punctuation">:</span>array<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token operator">&gt;</span> data<span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
@@ -261,4 +267,7 @@ template<span class="token operator">&lt;</span>typename T<span class="token ope
 <blockquote>
 <p>Written with <a href="https://stackedit.io/">StackEdit</a>.</p>
 </blockquote>
+</div>
+</body>
 
+</html>
